@@ -41,10 +41,11 @@ df <- df %>%
     notes = case_when(
       previous_claim_status == "Invalid Submission" ~ "INVALID",
       is_blackhawk == "TRUE" ~ "BH TAG",
-      exception_reason == "existing wearer" ~ "PREV TAGGED",
+      #exception_reason == "existing wearer" ~ "PREV TAGGED",
+      !is.na(exception_reason) ~ "PREV TAGGED",
       patient_first_name == previous_patient_first_name ~ "TAG",
       patient_first_name != previous_patient_first_name ~ "DIFFERENT PATIENT"
-    ))
+))
 
 # re-orders columns -> puts notes at start
 df <- df %>%
