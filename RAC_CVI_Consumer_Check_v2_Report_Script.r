@@ -4,23 +4,23 @@ library(janitor)
 library(readr)
 library(stringr)
 library(tidyverse)
-
 library(openxlsx)
 
+#--------------- SETUP ---------------#
 
 # reads excel file
-df <- read_excel("RAC CVI Consumer Check v2 02-20-2020.xlsx", sheet = "Sheet1")
+df <- read_excel("RAC CVI Consumer Check v2 02-15-2020.xlsx", sheet = "Sheet1")
 
 # cleans up column names
 names(df) <- make_clean_names(names(df))
 
+#--------------- PREP ---------------#
+
+# removes duplicates by transaction_number
 df <- df %>%
-  # removes duplicates
   distinct(transaction_number, .keep_all = TRUE)
 
-#View(df)
-
-# adds notes column
+# adds notes column -> calculates values based on case_when
 df <- df %>%
   mutate(
     notes = case_when(
@@ -31,27 +31,54 @@ df <- df %>%
       patient_first_name != previous_patient_first_name ~ "DIFFERENT PATIENT"
 ))
 
+# re-orders columns -> puts notes at start
+df <- df %>%
+  select(notes, everything())
+
+# view dataframe in RStudio
 View(df)
 
-### export to excel
+# build exceptions file to send to app support
+df_exceptions <- df %>%
+  filter(notes == "TAG") %>%
+  select(transaction_number) %>%
+    mutate(
+      Exception = "TRUE",
+      'Exception Reason' = "existing wearer",
+      Client = "CVI"
+)
+
+# renames transaction_number to be used for app support tool
+df_exceptions <- df_exceptions %>%
+  rename(Transaction = transaction_number)
+
+# view exception dataframe in RStudio
+View(df_exceptions)
+
+# write exception dataframe to csv
+write.csv(df_exceptions, "CVI Exceptions MM-DD-YYYY.csv", row.names = FALSE)
+
+#--------------- EXPORT TO EXCEL ---------------#
+
+# create workbook
 wb <- createWorkbook()
 
+# add sheet named Data to workbook
 addWorksheet(wb, "Data")
 
-negStyle <- createStyle(fontColour = "#9C0006", bgFill = "#FFC7CE")
-posStyle <- createStyle(fontColour = "#006100", bgFill = "#C6EFCE")
+# colour font & fill styles
+# find colour palette -> http://dmcritchie.mvps.org/excel/colors.htm
+redStyle <- createStyle(fontColour = "#9C0006", bgFill = "#FFC7CE")
+yellowStyle <- createStyle(bgFill = "#FFFF00")
+greenStyle <- createStyle(fontColour = "#006100", bgFill = "#C6EFCE")
 
-## cells containing text
-# df is object
+# write df to Data worksheet
 writeData(wb, "Data", x = df)
-conditionalFormatting(wb, "Data", cols = 1:52, rows = 1:15, type = "expression", rule = "=$A1=""TAG""", style = posStyle)
 
-conditionalFormatting(wb, "Data", cols = 1:52, rows = 1:15, type = "expression", rule = "=$AR1=0", style = negStyle)
+# conditional formatting rules to highlight excel rows based on notes value
+conditionalFormatting(wb, "Data", cols = 1:52, rows = 1:100, type = "expression", rule = '$A1="TAG"', style = redStyle)
+conditionalFormatting(wb, "Data", cols = 1:52, rows = 1:100, type = "expression", rule = '$A1="PREV TAGGED"', style = yellowStyle)
+conditionalFormatting(wb, "Data", cols = 1:52, rows = 1:100, type = "expression", rule = '$A1="DIFFERENT PATIENT"', style = greenStyle)
 
-#conditionalFormatting(wb, sheet, cols, rows, rule = NULL, style = NULL,
-                      #type = "contains", ...)
-
-#write.xlsx(wb, "test.xlsx")
-
-saveWorkbook(wb, "conditionalFormattingExample.xlsx", TRUE)
-
+# saves excel workbook
+saveWorkbook(wb, "RAC CVI Consumer Check v2 02-15-2020 TESTING12.xlsx")
