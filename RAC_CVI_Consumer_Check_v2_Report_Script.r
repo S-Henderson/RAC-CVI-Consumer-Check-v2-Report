@@ -47,9 +47,23 @@ df <- df %>%
       patient_first_name != previous_patient_first_name ~ "DIFFERENT PATIENT"
 ))
 
+# adds patient first name match column -> mostly for audit check - following process doc instructions
+df <- df %>%
+  mutate(
+    patient_first_name_match = case_when(
+      patient_first_name == previous_patient_first_name ~ "TRUE",
+      patient_first_name != previous_patient_first_name ~ "FALSE"
+))
+
+
 # re-orders columns -> puts notes at start
 df <- df %>%
   select(notes, everything())
+
+# add patient name match after names
+
+client_code	submission_email	program_type	created_date	transaction_number	session_number	program_code	model	invoice_number	status	customer_name	customer_address	customer_address_2	customer_city	customer_state	customer_zip_code	customer_phone_number	dealer	dealer_name	user_id	serial_number	on_hold_reason	sales_associate	comments	submission_type	is_blackhawk	previous_session_number	previous_claim_number	previous_claim_purchase_date	previous_claim_email	previous_claim_customer_name	previous_claim_model	previous_claim_status	purchase_sale_date	patient_first_name	patient_last_name	previous_patient_first_name	previous_patient_last_name
+
 
 # view dataframe in RStudio
 View(df)
