@@ -6,18 +6,21 @@ library(stringr)
 library(tidyverse)
 library(openxlsx)
 
+print("Script Starting")
+
 #--------------- SETUP ---------------#
 
 # directory paths
-mainDir <- "C:/Users/shenderson/Desktop"
+mainDir <- file.path(Sys.getenv("USERPROFILE"),"Desktop")
 subDir <- "RAC_CVI_Consumer_Check_v2_Exports"
 
-# sets working directory to sub path - this is where stuff is exported
+# sets working directory to user desktop to add subfolder
 setwd(mainDir)
 
 #Check if the sub directory folder exists in the current directory, if not then creates it
 ifelse(!dir.exists(subDir), dir.create(subDir), "Export directory already exists")
 
+# sets working directory to sub path - this is where stuff is exported/saved
 setwd(file.path(mainDir, subDir))
 
 # reads excel file - opens file browser window
@@ -29,7 +32,7 @@ df <- read_excel(file.choose())
 # cleans up column names
 names(df) <- make_clean_names(names(df))
 
-#--------------- PREP ---------------#
+#--------------- PREP REPORT ---------------#
 
 # removes duplicates by transaction_number
 df <- df %>%
@@ -41,11 +44,12 @@ df <- df %>%
     notes = case_when(
       previous_claim_status == "Invalid Submission" ~ "INVALID",
       is_blackhawk == "TRUE" ~ "BH TAG",
-      #exception_reason == "existing wearer" ~ "PREV TAGGED",
+      # if exception_reason is not blank - accounts for mutiple exception reasons
       !is.na(exception_reason) ~ "PREV TAGGED",
+      # TAG name matches -> report pulls same last name so just check first names for match
       patient_first_name == previous_patient_first_name ~ "TAG",
       patient_first_name != previous_patient_first_name ~ "DIFFERENT PATIENT"
-))
+    ))
 
 # adds patient first name match column -> mostly for audit check - following process doc instructions
 df <- df %>%
@@ -53,20 +57,16 @@ df <- df %>%
     patient_first_name_match = case_when(
       patient_first_name == previous_patient_first_name ~ "TRUE",
       patient_first_name != previous_patient_first_name ~ "FALSE"
-))
-
+    ))
 
 # re-orders columns -> puts notes at start
 df <- df %>%
-  select(notes, everything())
-
-# add patient name match after names
-
-client_code	submission_email	program_type	created_date	transaction_number	session_number	program_code	model	invoice_number	status	customer_name	customer_address	customer_address_2	customer_city	customer_state	customer_zip_code	customer_phone_number	dealer	dealer_name	user_id	serial_number	on_hold_reason	sales_associate	comments	submission_type	is_blackhawk	previous_session_number	previous_claim_number	previous_claim_purchase_date	previous_claim_email	previous_claim_customer_name	previous_claim_model	previous_claim_status	purchase_sale_date	patient_first_name	patient_last_name	previous_patient_first_name	previous_patient_last_name
-
+  select(notes, 1:39, patient_first_name_match, everything())
 
 # view dataframe in RStudio
 View(df)
+
+#--------------- BUILD EXCEPTIONS FILE ---------------#
 
 # build exceptions file to send to app support
 df_exceptions <- df %>%
@@ -85,10 +85,23 @@ df_exceptions <- df_exceptions %>%
 # view exception dataframe in RStudio
 View(df_exceptions)
 
-# write exception dataframe to csv
-write.csv(df_exceptions, "CVI Exceptions MM-DD-YYYY.csv", row.names = FALSE)
+#--------------- EXPORT EXCEPTIONS FILE ---------------#
 
-#--------------- EXPORT TO EXCEL ---------------#
+# exceptions filename for csv -> adds current date to filename
+exceptions_filename_csv <- paste0("CVI Exceptions ", format(Sys.Date(), "%m-%d-%Y"), ".csv")
+
+# write exception dataframe to csv
+write.csv(df_exceptions, exceptions_filename_csv, row.names = FALSE)
+
+### OPTIONAL XLSX EXPORT ###
+
+# exceptions filename for xlsx -> adds current date to filename
+#exceptions_filename_xlsx <- paste0("CVI Exceptions ", format(Sys.Date(), "%m-%d-%Y"), ".xlsx")
+
+# write exception dataframe to csv
+#write.xlsx(df_exceptions, exceptions_filename_xlsx, row.names = FALSE)
+
+#--------------- EXPORT BUILT FILE TO EXCEL ---------------#
 
 # create workbook
 wb <- createWorkbook()
@@ -96,10 +109,10 @@ wb <- createWorkbook()
 # add sheet named Data to workbook
 addWorksheet(wb, "Data")
 
-# colour font & fill styles
-# find colour palette -> http://dmcritchie.mvps.org/excel/colors.htm
+# colour font & fill styles for conditional formatting rules
+## find colour palette -> http://dmcritchie.mvps.org/excel/colors.htm
 redStyle <- createStyle(fontColour = "#9C0006", bgFill = "#FFC7CE")
-yellowStyle <- createStyle(bgFill = "#FFFF00")
+yellowStyle <- createStyle(fontColour = "#9C5600", bgFill = "#FFEB9C")
 greenStyle <- createStyle(fontColour = "#006100", bgFill = "#C6EFCE")
 
 # write df to Data worksheet
@@ -110,5 +123,10 @@ conditionalFormatting(wb, "Data", cols = 1:52, rows = 1:100, type = "expression"
 conditionalFormatting(wb, "Data", cols = 1:52, rows = 1:100, type = "expression", rule = '$A1="PREV TAGGED"', style = yellowStyle)
 conditionalFormatting(wb, "Data", cols = 1:52, rows = 1:100, type = "expression", rule = '$A1="DIFFERENT PATIENT"', style = greenStyle)
 
+# built report filename -> xlsx format to allow conditional formatting
+built_report_filename_xlsx <- paste0("Copy of RAC CVI Consumer Check v2 ", format(Sys.Date(), "%m-%d-%Y"), ".xlsx")
+
 # saves excel workbook
-saveWorkbook(wb, "RAC CVI Consumer Check v2 02-21-2020 - BUILT.xlsx")
+saveWorkbook(wb, built_report_filename_xlsx)
+
+print("Script Completed")
