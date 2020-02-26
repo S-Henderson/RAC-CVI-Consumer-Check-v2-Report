@@ -61,7 +61,7 @@ df <- df %>%
 
 # re-orders columns -> puts notes at start
 df <- df %>%
-  select(notes, 1:39, patient_first_name_match, everything())
+  select(notes, 1:38, patient_first_name_match, everything())
 
 # view dataframe in RStudio
 View(df)
@@ -87,19 +87,19 @@ View(df_exceptions)
 
 #--------------- EXPORT EXCEPTIONS FILE ---------------#
 
-# exceptions filename for csv -> adds current date to filename
-exceptions_filename_csv <- paste0("CVI Exceptions ", format(Sys.Date(), "%m-%d-%Y"), ".csv")
-
-# write exception dataframe to csv
-write.csv(df_exceptions, exceptions_filename_csv, row.names = FALSE)
-
-### OPTIONAL XLSX EXPORT ###
-
 # exceptions filename for xlsx -> adds current date to filename
-#exceptions_filename_xlsx <- paste0("CVI Exceptions ", format(Sys.Date(), "%m-%d-%Y"), ".xlsx")
+exceptions_filename_xlsx <- paste0("CVI Exceptions ", format(Sys.Date(), "%m-%d-%Y"), ".xlsx")
 
 # write exception dataframe to csv
-#write.xlsx(df_exceptions, exceptions_filename_xlsx, row.names = FALSE)
+write.xlsx(df_exceptions, exceptions_filename_xlsx, sheetName = "Sheet1", row.names = FALSE)
+
+### OPTIONAL CSV EXPORT ###
+
+# exceptions filename for csv -> adds current date to filename
+##exceptions_filename_csv <- paste0("CVI Exceptions ", format(Sys.Date(), "%m-%d-%Y"), ".csv")
+
+# write exception dataframe to csv
+##write.csv(df_exceptions, exceptions_filename_csv, row.names = FALSE)
 
 #--------------- EXPORT BUILT FILE TO EXCEL ---------------#
 
