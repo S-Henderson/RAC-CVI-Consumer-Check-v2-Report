@@ -118,7 +118,7 @@ greenStyle <- createStyle(fontColour = "#006100", bgFill = "#C6EFCE")
 # write df to Data worksheet
 writeData(wb, "Data", x = df)
 
-# conditional formatting rules to highlight excel rows based on notes value
+# conditional formatting rules to highlight excel rows based on notes value -> limit to 100 rows -> issues doing dynamic range for row
 conditionalFormatting(wb, "Data", cols = 1:52, rows = 1:100, type = "expression", rule = '$A1="TAG"', style = redStyle)
 conditionalFormatting(wb, "Data", cols = 1:52, rows = 1:100, type = "expression", rule = '$A1="PREV TAGGED"', style = yellowStyle)
 conditionalFormatting(wb, "Data", cols = 1:52, rows = 1:100, type = "expression", rule = '$A1="DIFFERENT PATIENT"', style = greenStyle)
@@ -128,5 +128,11 @@ built_report_filename_xlsx <- paste0("Copy of RAC CVI Consumer Check v2 ", forma
 
 # saves excel workbook
 saveWorkbook(wb, built_report_filename_xlsx)
+
+# counts total hits of built file for tracker
+print(paste(nrow(df),"- Total Hits"))
+
+# counts total actioned of exception file for tracker
+print(paste(nrow(df_exceptions),"- Total Actioned"))
 
 print("Script Completed")
