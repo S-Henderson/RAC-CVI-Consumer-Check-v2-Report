@@ -59,7 +59,7 @@ df <- df %>%
       patient_first_name != previous_patient_first_name ~ "FALSE"
     ))
 
-# re-orders columns -> puts notes at start
+# re-orders columns -> puts notes at start -> adds patient name match after patient names
 df <- df %>%
   select(notes, 1:38, patient_first_name_match, everything())
 
