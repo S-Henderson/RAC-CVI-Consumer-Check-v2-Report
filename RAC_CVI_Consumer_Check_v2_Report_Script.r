@@ -129,6 +129,8 @@ built_report_filename_xlsx <- paste0("Copy of RAC CVI Consumer Check v2 ", forma
 # saves excel workbook
 saveWorkbook(wb, built_report_filename_xlsx)
 
+#--------------- TRACKER INFO ---------------#
+
 # counts total hits of built file for tracker
 print(paste(nrow(df),"- Total Hits"))
 
