@@ -64,7 +64,7 @@ df <- df %>%
   select(notes, 1:38, patient_first_name_match, everything())
 
 # view dataframe in RStudio
-#View(df)
+##View(df)
 
 #--------------- BUILD EXCEPTIONS FILE ---------------#
 
@@ -83,7 +83,7 @@ df_exceptions <- df_exceptions %>%
   rename(Transaction = transaction_number)
 
 # view exception dataframe in RStudio
-#View(df_exceptions)
+##View(df_exceptions)
 
 #--------------- EXPORT EXCEPTIONS FILE ---------------#
 
