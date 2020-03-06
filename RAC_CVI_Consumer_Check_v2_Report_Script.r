@@ -137,4 +137,7 @@ print(paste(nrow(df),"- Total Hits"))
 # counts total actioned of exception file for tracker
 print(paste(nrow(df_exceptions),"- Total Actioned"))
 
+# opens up service request portal website to send exceptions file -> opens in default browser
+browseURL("https://360insights.atlassian.net/servicedesk/customer/portal/28/group/107/create/520")
+
 print("Script Completed")
