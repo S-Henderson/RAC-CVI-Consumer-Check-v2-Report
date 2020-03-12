@@ -47,7 +47,7 @@ df <- df %>%
 Raction <- function(df) {
   df <- df %>%
     mutate(
-      'Raction' = case_when(
+      `Raction` = case_when(
         is_blackhawk == "TRUE" ~ "BH TAG",
         previous_claim_status == "Invalid Submission" ~ "IS",
         # if exception_reason is not blank - accounts for mutiple exception reasons
@@ -74,22 +74,22 @@ df <- patient_name_match(df)
 
 #--------------- ORDER OF COLUMNS ---------------#
 
-# re-orders columns -> puts notes at start -> adds patient name match after patient names
+# re-orders columns -> puts Raction at start -> adds patient name match after patient names
 df <- df %>%
-  select('Raction', 1:38, patient_first_name_match, everything())
+  select(`Raction`, 1:38, patient_first_name_match, everything())
 
 #--------------- BUILD EXCEPTIONS FILE ---------------#
 
 # build exceptions file to send to app support
 build_exceptions <- function(df) {
   df <- df %>%
-    filter('Raction' == "TAG"
+    filter(`Raction` == "TAG"
     ) %>%
     select(transaction_number
     ) %>%
     mutate(
       Exception = "TRUE",
-      'Exception Reason' = "existing wearer",
+      `Exception Reason` = "existing wearer",
       Client = "CVI"
     )
 }
@@ -135,7 +135,7 @@ writeData(wb, "Data", x = df)
 
 #--------------- CONDITIONAL FORMATTING RULES ---------------#
 
-# conditional formatting rules to highlight excel rows based on notes value -> limit to 100 rows -> issues doing dynamic range for row
+# conditional formatting rules to highlight excel rows based on Raction value -> limit to 100 rows -> issues doing dynamic range for row
 # main rules
 conditionalFormatting(wb, "Data", cols = 1:52, rows = 1:100, type = "expression", rule = '$A1="TAG"', style = redStyle)
 conditionalFormatting(wb, "Data", cols = 1:52, rows = 1:100, type = "expression", rule = '$A1="PREV TAG"', style = yellowStyle)
