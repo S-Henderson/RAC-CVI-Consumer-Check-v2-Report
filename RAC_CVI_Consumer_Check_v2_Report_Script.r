@@ -118,7 +118,7 @@ write.xlsx(df_exceptions, exceptions_filename_xlsx, sheetName = "Sheet1", row.na
 
 #--------------- EXPORT BUILT FILE TO EXCEL ---------------#
 
-# create workbook
+# create excel workbook object
 wb <- createWorkbook()
 
 # add sheet named Data to workbook
@@ -133,6 +133,8 @@ greenStyle <- createStyle(fontColour = "#006100", bgFill = "#C6EFCE")
 # write df to Data worksheet
 writeData(wb, "Data", x = df)
 
+#--------------- CONDITIONAL FORMATTING RULES ---------------#
+
 # conditional formatting rules to highlight excel rows based on notes value -> limit to 100 rows -> issues doing dynamic range for row
 # main rules
 conditionalFormatting(wb, "Data", cols = 1:52, rows = 1:100, type = "expression", rule = '$A1="TAG"', style = redStyle)
@@ -140,6 +142,8 @@ conditionalFormatting(wb, "Data", cols = 1:52, rows = 1:100, type = "expression"
 conditionalFormatting(wb, "Data", cols = 1:52, rows = 1:100, type = "expression", rule = '$A1="DIFFERENT PATIENT"', style = greenStyle)
 # misc rules
 conditionalFormatting(wb, "Data", cols = 1:52, rows = 1:100, type = "expression", rule = '$A1="IS"', style = greenStyle)
+
+#--------------- SAVING EXCEL FILE ---------------#
 
 # built report filename -> xlsx format to allow conditional formatting
 built_report_filename_xlsx <- paste0("Copy of RAC CVI Consumer Check v2 ", format(Sys.Date(), "%m-%d-%Y"), ".xlsx")
