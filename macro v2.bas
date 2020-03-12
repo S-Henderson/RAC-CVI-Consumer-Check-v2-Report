@@ -67,13 +67,19 @@ With ws
     End With
 End With
 
-'set yellow conditional formatting - difference column
+'set yellow conditional formatting
 With ws.Range("=$A$1:$AZ$99999")
     With .FormatConditions.Add(Type:=xlExpression, Formula1:="=$A1=""TAG""")
             .Interior.Color = RGB(255, 199, 206)
     End With
 End With
 
+'set green conditional formatting
+With ws.Range("=$A$1:$AZ$99999")
+    With .FormatConditions.Add(Type:=xlExpression, Formula1:="=$A1=""Diff Patient""")
+            .Interior.Color = RGB(198, 239, 206)
+    End With
+End With
 
 
 
