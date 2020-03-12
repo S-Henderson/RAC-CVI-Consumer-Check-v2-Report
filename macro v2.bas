@@ -68,9 +68,9 @@ With ws
 End With
 
 'set yellow conditional formatting - difference column
-With ws.Range("=$AA$2:$AA$99999")
-    With .FormatConditions.Add(Type:=xlExpression, Formula1:="=$A1=""TAG"")
-            .Interior.Color = RGB(255, 255, 204)
+With ws.Range("=$A$1:$AZ$99999")
+    With .FormatConditions.Add(Type:=xlExpression, Formula1:="=$A1=""TAG""")
+            .Interior.Color = RGB(255, 199, 206)
     End With
 End With
 
