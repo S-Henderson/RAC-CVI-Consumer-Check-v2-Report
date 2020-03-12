@@ -11,17 +11,26 @@ print("Script Starting")
 #--------------- SETUP ---------------#
 
 # directory paths
-mainDir <- file.path(Sys.getenv("USERPROFILE"),"Desktop")
+Desktop <- file.path(Sys.getenv("USERPROFILE"),"Desktop")
 subDir <- "RAC_CVI_Consumer_Check_v2_Exports"
 
-# sets working directory to user desktop to add subfolder
-setwd(mainDir)
+set_directory_paths <- function(directory) {
+  setwd(Desktop)
+    ifelse(!dir.exists(subDir), dir.create(subDir), "Export directory already exists")
+      setwd(file.path(Desktop, subDir))
+        print(paste0("Current Working Directory is ", getwd()))
+}
 
-#Check if the sub directory folder exists in the current directory, if not then creates it
-ifelse(!dir.exists(subDir), dir.create(subDir), "Export directory already exists")
+set_directory_paths(Desktop)
 
-# sets working directory to sub path - this is where stuff is exported/saved
-setwd(file.path(mainDir, subDir))
+# # sets working directory to user desktop to add subfolder
+# setwd(mainDir)
+# 
+# #Check if the sub directory folder exists in the current directory, if not then creates it
+# ifelse(!dir.exists(subDir), dir.create(subDir), "Export directory already exists")
+# 
+# # sets working directory to sub path - this is where stuff is exported/saved
+# setwd(file.path(mainDir, subDir))
 
 # reads excel file - opens file browser window
 df <- read_excel(file.choose())
