@@ -17,9 +17,9 @@ Export_Directory <- "RAC_CVI_Consumer_Check_v2_Exports"
 #set directory to named export folder
 set_directory_paths <- function(mainDir, subDir) {
   setwd(mainDir)
-    ifelse(!dir.exists(subDir), dir.create(subDir), "Export directory already exists")
-      setwd(file.path(mainDir, subDir))
-        print(paste0("Current Working Directory is ", getwd()))
+  ifelse(!dir.exists(subDir), dir.create(subDir), "Export directory already exists")
+  setwd(file.path(mainDir, subDir))
+  print(paste0("Current Working Directory is ", getwd()))
 }
 
 set_directory_paths(Desktop, Export_Directory)
@@ -35,26 +35,26 @@ clean_headers <- function(df) {
   make_clean_names(names(df))
 }
 
-names(df) <- clean_headers(df)
+#names(df) <- clean_headers(df)
 
 #--------------- PREP REPORT ---------------#
 
 # removes duplicates by transaction_number
 df <- df %>%
-  distinct(transaction_number, .keep_all = TRUE)
+  distinct(`Transaction Number`, .keep_all = TRUE)
 
 # adds Raction column
 Raction <- function(df) {
   df <- df %>%
     mutate(
       `Raction` = case_when(
-        is_blackhawk == "TRUE" ~ "BH TAG",
-        previous_claim_status == "Invalid Submission" ~ "IS",
+        `Is Blackhawk` == "TRUE" ~ "BH TAG",
+        `Previous Claim Status`  == "Invalid Submission" ~ "IS",
         # if exception_reason is not blank - accounts for mutiple exception reasons
-        !is.na(exception_reason) ~ "PREV TAG",
+        !is.na(`Exception Reason`) ~ "PREV TAG",
         # TAG name matches -> report pulls same last name so just check first names for match
-        patient_first_name == previous_patient_first_name ~ "TAG",
-        patient_first_name != previous_patient_first_name ~ "DIFFERENT PATIENT"
+        `Patient First Name` == `Previous Patient First Name` ~ "TAG",
+        `Patient First Name` != `Previous Patient First Name` ~ "Diff Patient"
       ))
 }
 
@@ -64,9 +64,9 @@ df <- Raction(df)
 patient_name_match <- function(df) {
   df <- df %>%
     mutate(
-      patient_first_name_match = case_when(
-        patient_first_name == previous_patient_first_name ~ "TRUE",
-        patient_first_name != previous_patient_first_name ~ "FALSE"
+      `Patient First Name Match` = case_when(
+        `Patient First Name` == `Previous Patient First Name` ~ "TRUE",
+        `Patient First Name` != `Previous Patient First Name` ~ "FALSE"
       ))
 }
 
@@ -76,7 +76,7 @@ df <- patient_name_match(df)
 
 # re-orders columns -> puts Raction at start -> adds patient name match after patient names
 df <- df %>%
-  select(`Raction`, 1:38, patient_first_name_match, everything())
+  select(`Raction`, 1:38, `Patient First Name Match`, everything())
 
 #--------------- BUILD EXCEPTIONS FILE ---------------#
 
@@ -85,7 +85,7 @@ build_exceptions <- function(df) {
   df <- df %>%
     filter(`Raction` == "TAG"
     ) %>%
-    select(transaction_number
+    select(`Transaction Number`
     ) %>%
     mutate(
       Exception = "TRUE",
@@ -98,7 +98,7 @@ df_exceptions <- build_exceptions(df)
 
 # renames transaction_number header to be used for app support tool
 df_exceptions <- df_exceptions %>%
-  rename(Transaction = transaction_number)
+  rename(Transaction = `Transaction Number`)
 
 #--------------- EXPORT EXCEPTIONS FILE ---------------#
 
@@ -126,8 +126,12 @@ addWorksheet(wb, "Data")
 
 # colour font & fill styles for conditional formatting rules
 ## find colour palette -> http://dmcritchie.mvps.org/excel/colors.htm
+# redStyle <- createStyle(fontColour = "#9C0006", bgFill = (255, 199, 206))
+# yellowStyle <- createStyle(fontColour = "#9C5600", bgFill = rgb(255, 255, 204))
+# greenStyle <- createStyle(fontColour = "#006100", bgFill = rgb(198, 239, 206))
+
 redStyle <- createStyle(fontColour = "#9C0006", bgFill = "#FFC7CE")
-yellowStyle <- createStyle(fontColour = "#9C5600", bgFill = "#FFEB9C")
+yellowStyle <- createStyle(fontColour = "#9C6500", bgFill = "#FFEB9C")
 greenStyle <- createStyle(fontColour = "#006100", bgFill = "#C6EFCE")
 
 # write df to Data worksheet
@@ -139,7 +143,7 @@ writeData(wb, "Data", x = df)
 # main rules
 conditionalFormatting(wb, "Data", cols = 1:52, rows = 1:100, type = "expression", rule = '$A1="TAG"', style = redStyle)
 conditionalFormatting(wb, "Data", cols = 1:52, rows = 1:100, type = "expression", rule = '$A1="PREV TAG"', style = yellowStyle)
-conditionalFormatting(wb, "Data", cols = 1:52, rows = 1:100, type = "expression", rule = '$A1="DIFFERENT PATIENT"', style = greenStyle)
+conditionalFormatting(wb, "Data", cols = 1:52, rows = 1:100, type = "expression", rule = '$A1="Diff Patient"', style = greenStyle)
 # misc rules
 conditionalFormatting(wb, "Data", cols = 1:52, rows = 1:100, type = "expression", rule = '$A1="IS"', style = greenStyle)
 
