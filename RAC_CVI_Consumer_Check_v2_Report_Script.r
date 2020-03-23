@@ -126,7 +126,7 @@ create_exceptions_file <- function() {
   # exceptions filename for xlsx -> adds current date to filename
   exceptions_filename_xlsx <- paste0("CVI Exceptions ", format(Sys.Date(), "%m-%d-%Y"), ".xlsx")
   # saves excel workbook
-  saveWorkbook(wb, built_report_filename_xlsx)
+  saveWorkbook(wb, exceptions_filename_xlsx)
 }
 
 create_exceptions_file()
