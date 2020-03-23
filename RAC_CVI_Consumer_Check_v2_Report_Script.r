@@ -44,7 +44,7 @@ remove_duplicates <- function(df) {
     distinct(`Transaction Number`, .keep_all = TRUE)
 }
 
-remove_duplicates(df)
+df <- remove_duplicates(df)
 
 # adds Raction column
 create_Raction <- function(df) {
