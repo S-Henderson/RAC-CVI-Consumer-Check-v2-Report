@@ -83,7 +83,7 @@ reorder_df_columns <- function(df) {
     select(`Raction`, 1:38, `Patient First Name Match`, everything())
 }
 
-reorder_df_columns(df)
+df <- reorder_df_columns(df)
 
 #--------------- BUILD EXCEPTIONS FILE ---------------
 
@@ -109,7 +109,7 @@ rename_exceptions_file <- function(df) {
     rename(Transaction = `Transaction Number`)
 }
 
-rename_exceptions_file(df_exceptions)
+df_exceptions <- rename_exceptions_file(df_exceptions)
 
 #--------------- EXPORT EXCEPTIONS FILE ---------------
 
