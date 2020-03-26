@@ -17,7 +17,7 @@ Export_Directory <- "RAC_CVI_Consumer_Check_v2_Exports"
 # set directory to named export folder
 set_directory_paths <- function(mainDir, subDir) {
   setwd(mainDir)
-  ifelse(!dir.exists(subDir), dir.create(subDir), "Export directory already exists")
+  ifelse(!dir.exists(subDir), dir.create(subDir), "Export Directory already exists", "Creating Export Directory")
   setwd(file.path(mainDir, subDir))
   print(paste0("Current Working Directory is ", getwd()))
 }
@@ -157,6 +157,7 @@ create_report_workbook <- function() {
   addWorksheet(wb, "Data")
   # write df to Data worksheet
   writeData(wb, "Data", x = df)
+  #--------------- CONDITIONAL FORMATTING STYLES ---------------
   # colour font & fill styles for conditional formatting rules -> find colour palette -> http://dmcritchie.mvps.org/excel/colors.htm
   redStyle <- createStyle(fontColour = "#9C0006", bgFill = "#FFC7CE")
   yellowStyle <- createStyle(fontColour = "#9C6500", bgFill = "#FFEB9C")
@@ -181,7 +182,7 @@ create_report_workbook()
 
 #--------------- TRACKER INFO ---------------
 
-#print tracker info
+# print tracker info
 tracker_info <- function(df, df_exceptions) {
   # counts total hits of built file for tracker
   print(paste0(nrow(df)," - Total Hits"))
