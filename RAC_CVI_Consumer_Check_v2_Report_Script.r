@@ -17,7 +17,7 @@ Export_Directory <- "RAC_CVI_Consumer_Check_v2_Exports"
 # set directory to named export folder
 set_directory_paths <- function(mainDir, subDir) {
   setwd(mainDir)
-  ifelse(!dir.exists(subDir), dir.create(subDir), "Export Directory already exists", "Creating Export Directory")
+  ifelse(!dir.exists(subDir), dir.create(subDir), "Export Directory already exists")
   setwd(file.path(mainDir, subDir))
   print(paste0("Current Working Directory is ", getwd()))
 }
