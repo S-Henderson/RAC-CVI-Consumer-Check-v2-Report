@@ -6,7 +6,9 @@ library(readr)
 library(stringr)
 library(openxlsx)
 
-print("Script Starting")
+start_time <- format(Sys.time(), "%X")
+
+print(paste0("Script Starting at ", start_time))
 
 #--------------- SETUP ---------------
 
@@ -26,6 +28,8 @@ set_directory_paths(Desktop, Export_Directory)
 
 # reads excel file - opens file browser window
 df <- read_excel(file.choose())
+
+print("Raw Data File Imported")
 
 #--------------- OPTIONAL - CLEAN COLUMN NAMES ---------------
 
@@ -148,6 +152,10 @@ create_exceptions_file()
 
 #--------------- EXPORT BUILT FILE TO EXCEL ---------------
 
+# get row and column index
+last_row <- nrow(df)+1
+all_cols <- 1:ncol(df)
+
 # create report file in excel with conditional formatting rules
 create_report_workbook <- function() {
   #--------------- CREATE EXCEL FILE ---------------
@@ -165,12 +173,12 @@ create_report_workbook <- function() {
   #--------------- CONDITIONAL FORMATTING RULES ---------------
   # conditional formatting rules to highlight excel rows based on Raction value -> limit to 100 rows -> issues doing dynamic range for row
   # main rules
-  conditionalFormatting(wb, "Data", cols = 1:52, rows = 1:100, type = "expression", rule = '$A1="TAG"', style = redStyle)
-  conditionalFormatting(wb, "Data", cols = 1:52, rows = 1:100, type = "expression", rule = '$A1="PREV TAG"', style = yellowStyle)
-  conditionalFormatting(wb, "Data", cols = 1:52, rows = 1:100, type = "expression", rule = '$A1="Diff Patient"', style = greenStyle)
+  conditionalFormatting(wb, "Data", cols = all_cols, rows = 1:last_row, type = "expression", rule = '$A1="TAG"', style = redStyle)
+  conditionalFormatting(wb, "Data", cols = all_cols, rows = 1:last_row, type = "expression", rule = '$A1="PREV TAG"', style = yellowStyle)
+  conditionalFormatting(wb, "Data", cols = all_cols, rows = 1:last_row, type = "expression", rule = '$A1="Diff Patient"', style = greenStyle)
   # misc rules
-  conditionalFormatting(wb, "Data", cols = 1:52, rows = 1:100, type = "expression", rule = '$A1="BH TAG"', style = redStyle)
-  conditionalFormatting(wb, "Data", cols = 1:52, rows = 1:100, type = "expression", rule = '$A1="IS"', style = greenStyle)
+  conditionalFormatting(wb, "Data", cols = all_cols, rows = 1:last_row, type = "expression", rule = '$A1="BH TAG"', style = redStyle)
+  conditionalFormatting(wb, "Data", cols = all_cols, rows = 1:last_row, type = "expression", rule = '$A1="IS"', style = greenStyle)
   #--------------- SAVING EXCEL FILE ---------------
   # built report filename -> xlsx format to allow conditional formatting
   built_report_filename_xlsx <- paste0("Copy of RAC CVI Consumer Check v2 ", format(Sys.Date(), "%m-%d-%Y"), ".xlsx")
@@ -179,6 +187,8 @@ create_report_workbook <- function() {
 }
 
 create_report_workbook()
+
+print("Built File Exported")
 
 #--------------- TRACKER INFO ---------------
 
@@ -195,4 +205,8 @@ tracker_info(df, df_exceptions)
 # opens up service request portal website to send exceptions file to app support -> opens in default browser
 browseURL("https://360insights.atlassian.net/servicedesk/customer/portal/28/group/107/create/520")
 
-print("Script Completed")
+#--------------- SCRIPT COMPLETED ---------------
+
+end_time <- format(Sys.time(), "%X")
+
+print(paste0("Script Completed at ", end_time))
