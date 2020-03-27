@@ -6,6 +6,15 @@ library(readr)
 library(stringr)
 library(openxlsx)
 
+# By: Scott Henderson
+# Last Updated: March 27, 2020
+
+# Input: RAC CVI Consumer Check v2 Report
+# Output: 
+# Totals Hits & Total Actioned tracker info
+# Built Report .xlsx file into a folder on your Desktop named RAC_CVI_Consumer_Check_v2_Exports
+# If any TAG transactions, CVI Exceptions File to be sent to App Support
+
 start_time <- format(Sys.time(), "%X")
 
 print(paste0("Script Starting at ", start_time))
