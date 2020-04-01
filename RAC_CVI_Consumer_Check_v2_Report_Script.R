@@ -36,18 +36,14 @@ set_directory_paths <- function(mainDir, subDir) {
 set_directory_paths(Desktop, Export_Directory)
 
 # reads excel file - opens file browser window
-df <- read_excel(file.choose())
+df <- read_excel(
+        file.choose(), 
+        sheet = "Sheet1",
+        col_types = "text",
+        guess_max = Inf
+)
 
 print("Raw Data File Imported")
-
-#--------------- OPTIONAL - CLEAN COLUMN NAMES ---------------
-
-# cleans up column names - Not applicable anymore*
-# clean_headers <- function(df) {
-#   make_clean_names(names(df))
-# }
-# 
-# names(df) <- clean_headers(df)
 
 #--------------- PREP REPORT ---------------
 
@@ -58,6 +54,25 @@ remove_duplicates <- function(df) {
 }
 
 df <- remove_duplicates(df)
+
+#--------------- CLEAN TRANSACTIONS ---------------
+
+df$`Transaction Number` = as.numeric(as.character(df$`Transaction Number`))
+
+#--------------- CLEAN PATIENT NAMES ---------------
+
+df$`Patient First Name` = toupper(df$`Patient First Name`)
+
+df$`Patient Last Name` = toupper(df$`Patient Last Name`)
+
+df$`Previous Patient First Name` = toupper(df$`Previous Patient First Name`)
+
+df$`Previous Patient Last Name` = toupper(df$`Previous Patient Last Name`)
+
+#--------------- CLEAN DATE ---------------
+
+#df$`Created Date` = 
+
 
 # adds Raction column
 create_Raction <- function(df) {
