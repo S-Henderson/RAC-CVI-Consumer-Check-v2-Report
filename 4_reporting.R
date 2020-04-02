@@ -85,8 +85,16 @@ create_report_workbook <- function() {
   # Write built df to worksheet
   writeData(wb, 
             sheet = "Data", 
-            x = df
+            x = df,
+            withFilter = TRUE
             )
+  # Set column width
+  # RAction column
+  setColWidths(wb, 
+               sheet = "Data", 
+               cols = 1:1, 
+               widths = 10
+              )
   # Conditional Formatting Styles
   redStyle <- createStyle(fontColour = "#9C0006", 
                           bgFill = "#FFC7CE"
@@ -140,12 +148,12 @@ create_report_workbook <- function() {
                         style = greenStyle
                         )
   # Built report filename
-  built_report_filename_xlsx <- paste0("Copy of RAC CVI Consumer Check v2 ", 
+  built_report_filename <- paste0("Copy of RAC CVI Consumer Check v2 ", 
                                        format(Sys.Date(), "%m-%d-%Y"), 
                                        ".xlsx")
   # Save Workbook
   saveWorkbook(wb, 
-               built_report_filename_xlsx
+               built_report_filename
                )
 }
 
