@@ -7,7 +7,28 @@ library(stringr)
 library(openxlsx)
 
 # By: Scott Henderson
-# Last Updated: Apr 1, 2020
+# Last Updated: Apr 2, 2020
+
+#--------------- CLEAN TRANSACTIONS ---------------
+
+# Converts Transactions to numeric 
+df$`Transaction Number` = as.numeric(as.character(df$`Transaction Number`))
+
+print("Cleaning Transactions Numbers")
+
+#--------------- CLEAN PATIENT NAMES ---------------
+
+# Converts Patient Names to Uppercase to properly match
+
+df$`Patient First Name` = toupper(df$`Patient First Name`)
+
+df$`Patient Last Name` = toupper(df$`Patient Last Name`)
+
+df$`Previous Patient First Name` = toupper(df$`Previous Patient First Name`)
+
+df$`Previous Patient Last Name` = toupper(df$`Previous Patient Last Name`)
+
+print("Cleaning Patient Names")
 
 #--------------- REMOVE DUPLICATES ---------------
 
@@ -22,19 +43,4 @@ remove_duplicates <- function(df) {
 
 df <- remove_duplicates(df)
 
-#--------------- CLEAN TRANSACTIONS ---------------
-
-# Converts Transactions to numeric 
-df$`Transaction Number` = as.numeric(as.character(df$`Transaction Number`))
-
-#--------------- CLEAN PATIENT NAMES ---------------
-
-# Converts Patient Names to Uppercase to properly match
-
-df$`Patient First Name` = toupper(df$`Patient First Name`)
-
-df$`Patient Last Name` = toupper(df$`Patient Last Name`)
-
-df$`Previous Patient First Name` = toupper(df$`Previous Patient First Name`)
-
-df$`Previous Patient Last Name` = toupper(df$`Previous Patient Last Name`)
+print("Removing Duplicates")

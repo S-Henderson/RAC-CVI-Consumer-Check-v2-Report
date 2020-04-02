@@ -17,17 +17,19 @@ print(paste0("Script Starting at ", start_time))
 
 #--------------- SCRIPTS ---------------
 
+# Please run the R scripts in order
+
 # Load Data
-source(".R_Scripts/1_load.R")
+source("./R_Scripts/1_load.R")
 
 # Clean Data
-source(".R_Scripts/2_clean.R")
+source("./R_Scripts/2_clean.R")
 
 # Analyze Data
-source(".R_Scripts/3_analysis.R")
+source("./R_Scripts/3_analysis.R")
 
 # Export Data
-source(".R_Scripts/4_reporting.R")
+source("./R_Scripts/4_reporting.R")
 
 #--------------- SCRIPT COMPLETED ---------------
 

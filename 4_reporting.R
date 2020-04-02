@@ -7,7 +7,7 @@ library(stringr)
 library(openxlsx)
 
 # By: Scott Henderson
-# Last Updated: Apr 1, 2020
+# Last Updated: Apr 2, 2020
 
 #--------------- CREATE EXCEPTIONS FILE ---------------
 
@@ -29,6 +29,8 @@ create_exceptions <- function(df) {
 
 exceptions <- create_exceptions(df)
 
+print("Creating Exceptions File")
+
 # Renames Transaction Number header to be used for app support tool
 rename_exceptions_file <- function(df) {
   df <- df %>%
@@ -38,6 +40,8 @@ rename_exceptions_file <- function(df) {
 }
 
 exceptions <- rename_exceptions_file(exceptions)
+
+print("Cleaning Exceptions File")
 
 #--------------- EXPORT EXCEPTIONS FILE ---------------
 
@@ -56,8 +60,8 @@ create_exceptions_file <- function() {
             )
   # Exceptions filename
   exceptions_filename <- paste0("CVI Exceptions ", 
-                                     format(Sys.Date(), 
-                                     "%m-%d-%Y"), ".xlsx")
+                                format(Sys.Date(), 
+                                "%m-%d-%Y"), ".xlsx")
   # Save workbook
   saveWorkbook(wb, 
                exceptions_filename
@@ -173,7 +177,17 @@ tracker_info <- function(df, df_exceptions) {
 
 tracker_info(df, exceptions)
 
+#--------------- CHECK FOR MISSING RACTION ---------------
+
+# Check if any Raction reasons/tags are missing
+na_Raction <- sum(is.na(df$`Raction`))
+
+# Check missing values to manually check data
+if_else(na_Raction > 0, "Missing Raction Reasons - Please Check Data", "No Raction Reasons Missing - Continue Forward")
+
 #--------------- OPEN APP SUPPORT LINK ---------------
 
 # opens up service request portal website to send exceptions file to App Support -> opens in default browser
 browseURL("https://360insights.atlassian.net/servicedesk/customer/portal/28/group/107/create/520")
+
+print("Opening Request Portal Link")

@@ -7,7 +7,7 @@ library(stringr)
 library(openxlsx)
 
 # By: Scott Henderson
-# Last Updated: Apr 1, 2020
+# Last Updated: Apr 2, 2020
 
 #--------------- RACTION ---------------
 
@@ -33,6 +33,8 @@ create_Raction <- function(df) {
 
 df <- create_Raction(df)
 
+print("Creating Raction Column")
+
 #--------------- PATIENT NAME MATCH ---------------
 
 # Check Patient Name match -> mostly for audit reason -> only checks First Name as report pulls same Last Name
@@ -49,6 +51,8 @@ patient_name_match <- function(df) {
 
 df <- patient_name_match(df)
 
+print("Checking Patient Name Matches")
+
 #--------------- RE-ORDER COLUMNS ---------------
 
 # Puts Raction at start -> adds `Patient First Name Match` after patient names
@@ -58,3 +62,5 @@ reorder_df_columns <- function(df) {
 }
 
 df <- reorder_df_columns(df)
+
+print("Re-ordering Columns")

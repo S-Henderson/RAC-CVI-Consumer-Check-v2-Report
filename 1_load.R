@@ -7,7 +7,7 @@ library(stringr)
 library(openxlsx)
 
 # By: Scott Henderson
-# Last Updated: Apr 1, 2020
+# Last Updated: Apr 2, 2020
 
 #--------------- IMPORT DATA ---------------
 
@@ -15,7 +15,6 @@ library(openxlsx)
 df <- read_excel(
   file.choose(), 
   sheet = "Sheet1",
-  col_types = "text",
   guess_max = Inf
 )
 
