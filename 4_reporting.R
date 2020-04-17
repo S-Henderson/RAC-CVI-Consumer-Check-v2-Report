@@ -183,7 +183,7 @@ tracker_info(df, exceptions)
 na_Raction <- sum(is.na(df$`Raction`))
 
 # Check missing values to manually check data
-if_else(na_Raction > 0, "Missing Raction Reasons - Please Check Data", "No Raction Reasons Missing - Continue Forward")
+print(if_else(na_Raction > 0, "Missing Raction Reasons - Please Check Data", "No Raction Reasons Missing - Continue Forward"))
 
 #--------------- OPEN APP SUPPORT LINK ---------------
 
