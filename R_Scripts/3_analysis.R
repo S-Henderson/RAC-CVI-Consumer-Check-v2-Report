@@ -1,6 +1,6 @@
 #--------------- RACTION ---------------
 
-# Action column
+# Document actions
 create_Raction <- function(df) {
   df <- df %>%
     mutate(

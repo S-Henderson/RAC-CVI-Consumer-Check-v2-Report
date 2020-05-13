@@ -41,11 +41,11 @@ exceptions_file_path <- "\\\\360Corp-WShare\\zdrive\\RAC\\RAC Report Archive\\RA
 
 # Add date to file name
 exceptions_file_name <- paste0("CVI Exceptions ", 
-                              format(Sys.Date(), "%m-%d-%Y"), 
-                              ".xlsx"
+                               format(Sys.Date(), "%m-%d-%Y"), 
+                               ".xlsx"
                                )
 
-# Save Exceptions File to Network Drive Archive
+# Save exceptions file to Network Drive Archive
 write.xlsx(
   x = exceptions_df,
   file = paste0(exceptions_file_path, exceptions_file_name),
@@ -92,13 +92,13 @@ create_report_workbook <- function() {
                widths = 10
                )
   # Conditional formatting styles #
-  redStyle <- createStyle(fontColour = "#9C0006", 
+  red_style <- createStyle(fontColour = "#9C0006", 
                           bgFill = "#FFC7CE"
                           )
-  yellowStyle <- createStyle(fontColour = "#9C6500", 
+  yellow_style <- createStyle(fontColour = "#9C6500", 
                              bgFill = "#FFEB9C"
                              )
-  greenStyle <- createStyle(fontColour = "#006100", 
+  green_style <- createStyle(fontColour = "#006100", 
                             bgFill = "#C6EFCE"
                             )
   # Conditional formatting rules #
@@ -109,7 +109,7 @@ create_report_workbook <- function() {
                         rows = 1:last_row, 
                         type = "expression", 
                         rule = '$A1="TAG"', 
-                        style = redStyle
+                        style = red_style
                         )
   conditionalFormatting(wb, 
                         sheet = "Data", 
@@ -117,7 +117,7 @@ create_report_workbook <- function() {
                         rows = 1:last_row, 
                         type = "expression", 
                         rule = '$A1="PREV TAG"', 
-                        style = yellowStyle
+                        style = yellow_style
                         )
   conditionalFormatting(wb, 
                         sheet = "Data", 
@@ -125,15 +125,16 @@ create_report_workbook <- function() {
                         rows = 1:last_row, 
                         type = "expression", 
                         rule = '$A1="Diff Patient"', 
-                        style = greenStyle
+                        style = green_style
                         )
   # Misc rules
-  conditionalFormatting(wb, sheet = "Data", 
+  conditionalFormatting(wb, 
+                        sheet = "Data", 
                         cols = all_cols, 
                         rows = 1:last_row, 
                         type = "expression", 
                         rule = '$A1="BH TAG"', 
-                        style = redStyle
+                        style = red_style
                         )
   conditionalFormatting(wb, 
                         sheet = "Data", 
@@ -141,7 +142,7 @@ create_report_workbook <- function() {
                         rows = 1:last_row, 
                         type = "expression",
                         rule = '$A1="IS"', 
-                        style = greenStyle
+                        style = green_style
                         )
   # Built report filename #
   built_report_filename <- paste0("Copy of RAC CVI Consumer Check v2 ", 
