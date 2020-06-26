@@ -92,8 +92,8 @@ df <- df %>%
       
       !is.na(`Exception Reason`)                            ~ "PREV TAG",    # Accounts for multiple exception reasons
       
-      `Patient First Name` == `Previous Patient First Name` ~ "TAG",         # Checks First Name as query pulls same Last Name matches
-      `Patient First Name` != `Previous Patient First Name` ~ "Diff Patient" 
+      `Patient First Name` == `Previous Patient First Name` ~ "TAG",         # Only checks First Name matches
+      `Patient First Name` != `Previous Patient First Name` ~ "Diff Patient" # Query pulls same Last Name matches
       
     )
   )
@@ -107,6 +107,7 @@ df <- df %>%
       
       `Patient First Name` == `Previous Patient First Name` ~ "TRUE",
       `Patient First Name` != `Previous Patient First Name` ~ "FALSE"
+    
     )
   )
 
@@ -208,18 +209,8 @@ setwd(old_dir)
 # Data validation list reference -----
 
 # List of values for data validation options in excel export
-data_validation_list <- data.frame(
-  
-  `Raction Reasons` = c("BH TAG", 
-                        "IS", 
-                        "PREV TAG", 
-                        "TAG", 
-                        "Diff Patient"),
-  
-  # To allow spaces in header
-  check.names = FALSE
-  
-)
+data_validation_list <- read.csv(file = "./Reference_Data/Data_Validation_List.csv",
+                                 fileEncoding = "UTF-8-BOM")
 
 # Build report file -----
 
@@ -353,11 +344,14 @@ dataValidation(
   value = "'Data Validation'!$A$2:$A$6" # Watch out for how many items on data validation list
 )
 
+# Filename
 
 built_report_filename <- paste0("Copy of RAC CVI Consumer Check v2 ", 
                                 format(Sys.Date(), "%m-%d-%Y"), 
                                 ".xlsx"
 )
+
+# Save workbook
 
 saveWorkbook(
   wb, 
