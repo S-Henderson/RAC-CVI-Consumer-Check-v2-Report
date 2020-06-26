@@ -228,6 +228,8 @@ all_cols <- 1:ncol(df)
 
 wb <- createWorkbook()
 
+# Add sheets
+
 addWorksheet(
   wb, 
   sheetName = "Data"
@@ -238,12 +240,22 @@ addWorksheet(
   sheetName = "Data Validation"
 )
 
+# Write data
+
 writeData(
   wb, 
   sheet = "Data", 
   x = df,
   withFilter = TRUE
 )
+
+writeData(
+  wb, 
+  sheet = "Data Validation",
+  x = data_validation_list
+)
+
+# Set column widths
 
 setColWidths(
   wb, 
