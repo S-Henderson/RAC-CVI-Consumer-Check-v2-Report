@@ -328,7 +328,7 @@ With ws
     With .Range("A1:AU" & last_row)
             .AutoFilter Field:=1, Criteria1:="TAG"
         
-        'Copy/Paste
+        'Copy/paste
         With .Range("F2:F" & last_row)
                 .SpecialCells(xlCellTypeVisible).Copy Destination:=ws_exceptions.Range("A2")
         End With
