@@ -28,7 +28,7 @@ End Sub
 Sub Prep_Report()
 
 'Author: Scott Henderson
-'Last Updated: Oct 14, 2020
+'Last Updated: Oct 15, 2020
 
 'Purpose: Identify existing wearers and track them, in case the number of existing wearers claiming for the new wearers bonus ever need to be quantified for the client.
 
@@ -37,7 +37,7 @@ Sub Prep_Report()
 
 Application.ScreenUpdating = False
 
-'----------DECLARE VARIABLES----------'
+'---------- DECLARE VARIABLES ----------'
 
 Dim wb                As Workbook
 
@@ -52,7 +52,7 @@ Dim patient_name_cell As Range
 Dim save_file_path    As String
 Dim file_name         As String
 
-'----------SELECT WORKBOOK----------'
+'---------- SELECT WORKBOOK ----------'
 
 'Search for wb name pattern
 Set wb = GetWorkbookByNamePattern("**RAC CVI Consumer Check v2**")
@@ -67,7 +67,7 @@ End If
 
 Set ws = wb.Worksheets("Sheet1")
 
-'----------REMOVE FILTER----------'
+'---------- REMOVE FILTER ----------'
 
 'Best practice to remove any filters at start
 
@@ -76,7 +76,7 @@ If ws.AutoFilterMode = True Then
     ws.AutoFilterMode = False
 End If
 
-'----------REMOVE DUPLICATES----------'
+'---------- REMOVE DUPLICATES ----------'
 
 'Get the last row value BEFORE removing duplicates
 With ws
@@ -88,21 +88,21 @@ With ws
     .Range("A1:AS" & pre_last_row).RemoveDuplicates Columns:=5, Header:=xlYes
 End With
 
-'----------FIND WS LIMITS----------'
+'---------- FIND WS LIMITS ----------'
 
 'Get the last row value AFTER removing duplicates
 With ws
     last_row = .Cells(.Rows.Count, "A").End(xlUp).Row
 End With
 
-'----------TRIM PATIENT NAMES----------'
+'---------- TRIM PATIENT NAMES ----------'
 
 'Get rid of leading/trailing white space in names
 For Each patient_name_cell In ws.Range("AK2:AN" & last_row)
     patient_name_cell = WorksheetFunction.Trim(patient_name_cell)
 Next patient_name_cell
 
-'----------PATIENT NAMES CHECK----------'
+'---------- PATIENT NAMES CHECK ----------'
 
 'Create Patient First Name Match column
 With ws
@@ -115,7 +115,7 @@ With ws
     .Range("AO2:AO" & last_row).Formula = "=$AK2=$AM2"
 End With
 
-'----------RAC ACTION CHECK----------'
+'---------- RAC ACTION CHECK ----------'
 
 'Create Raction column
 With ws
@@ -128,7 +128,7 @@ With ws
     .Range("A2:A" & last_row).Formula = "=IFS($AB2=""True"",""BH TAG"",$AJ2=""Invalid Submission"",""IS"",$AU2<>"""",""PREV TAG"",$AP2=TRUE,""TAG"",$AP2=FALSE,""DIFF PATIENT"")"
 End With
 
-'----------CONDITIONAL FORMATTING RULES----------'
+'---------- CONDITIONAL FORMATTING RULES ----------'
 
 With ws
 
@@ -174,13 +174,16 @@ With ws
     
 End With
 
-'----------DATA VALIDATION LIST OPTIONS----------'
+'---------- DATA VALIDATION LIST OPTIONS ----------'
 
+'Data validation drop down list for Raction reasons
 With ws
-    .Range("A2:A" & last_row).Validation.Add Type:=xlValidateList, AlertStyle:=xlValidAlertStop, Formula1:="TAG, PREV TAG, DIFF PATIENT, IS, BH TAG"
+    With .Range("A2:A" & last_row)
+        .Validation.Add Type:=xlValidateList, AlertStyle:=xlValidAlertStop, Formula1:="TAG, PREV TAG, DIFF PATIENT, IS, BH TAG"
+    End With
 End With
 
-'----------TRACKING INFO----------'
+'---------- TRACKING INFO ----------'
 
 'Create new sheet for recording tracking info
 wb.Sheets.Add(After:=Sheets("Sheet1")).Name = "Tracking_Info"
@@ -195,18 +198,10 @@ With ws_tracking
     .Range("B1").Value = "Hits"
     .Range("C1").Value = "Assessed"
     .Range("D1").Value = "Worked"
-    .Range("E1").Value = "Worked Value"
+    .Range("E1").Value = "Worked Value ($)"
 End With
 
-'Tracking Values
-With ws_tracking
-    .Range("B3").Value = pre_last_row - 1                          'Hits
-    .Range("C3").Value = "=COUNTA(Sheet1!F:F)-1"                   'Assessed
-    .Range("D3").Formula = "=COUNTIF(Sheet1!A:A,""TAG"")"          'Actioned
-    .Range("E3").Formula = "=SUMIF(Sheet1!A:A,""TAG"",Sheet1!H:H)" 'Worked Value
-End With
-
-'Tracking Values -> Channel (optional)
+'Tracking Values -> Channel
 With ws_tracking
     .Range("B2").Value = "0" 'Hits
     .Range("C2").Value = "0" 'Assessed
@@ -214,18 +209,26 @@ With ws_tracking
     .Range("E2").Value = "0" 'Worked Value
 End With
 
-'----------VIEW MAIN DATA SHEET----------'
+'Tracking Values -> Consumer
+With ws_tracking
+    .Range("B3").Value = pre_last_row - 1                          'Hits
+    .Range("C3").Value = "=COUNTA(Sheet1!F:F)-1"                   'Assessed
+    .Range("D3").Formula = "=COUNTIF(Sheet1!A:A,""TAG"")"          'Actioned
+    .Range("E3").Formula = "=SUMIF(Sheet1!A:A,""TAG"",Sheet1!H:H)" 'Worked Value
+End With
+
+'---------- VIEW MAIN DATA SHEET ----------'
 
 ws.Activate
 
-'----------TURN ON FILTER----------'
+'---------- TURN ON FILTER ----------'
 
 'Check for filter, turn on if none exists
 If ws.AutoFilterMode = False Then
     ws.Range("A1").AutoFilter
 End If
 
-'----------SAVE DIRECTORY CHECK----------'
+'---------- SAVE DIRECTORY CHECK ----------'
 
 'This is path where report(s) are saved
 save_file_path = "C:\Users\" & Environ$("Username") & "\Desktop\RAC_Reports_Exports\"
@@ -235,7 +238,7 @@ If Len(Dir(save_file_path, vbDirectory)) = 0 Then
    MkDir (save_file_path)
 End If
 
-'----------SAVE MAIN WORKBOOK----------'
+'---------- SAVE MAIN WORKBOOK ----------'
 
 'Save file name
 file_name = "Copy of RAC CVI Consumer Check v2 " & Format(Now(), "MM-DD-YY") & ".xlsx"
@@ -243,7 +246,7 @@ file_name = "Copy of RAC CVI Consumer Check v2 " & Format(Now(), "MM-DD-YY") & "
 'Save file
 wb.SaveAs Filename:=save_file_path & file_name
 
-'----------SCRIPT COMPLETED----------'
+'---------- SCRIPT COMPLETED ----------'
 
 Application.ScreenUpdating = True
 
@@ -268,7 +271,7 @@ Dim save_file_path       As String
 Dim exceptions_file_name As String
 Dim exceptions_file_path As String
 
-'----------SELECT WORKBOOK----------'
+'---------- SELECT WORKBOOK ----------'
 
 'Search for wb name pattern
 Set wb = GetWorkbookByNamePattern("**RAC CVI Consumer Check v2**")
@@ -283,7 +286,7 @@ End If
 
 Set ws = wb.Worksheets("Sheet1")
 
-'----------REMOVE FILTER----------'
+'---------- REMOVE FILTER ----------'
 
 'Best practice to remove any filters at start
 
@@ -292,14 +295,14 @@ If ws.AutoFilterMode = True Then
     ws.AutoFilterMode = False
 End If
 
-'----------FIND WS LIMITS----------'
+'---------- FIND WS LIMITS ----------'
 
 'Get the last row value
 With ws
     last_row = .Cells(.Rows.Count, "A").End(xlUp).Row
 End With
 
-'----------CREATE EXCEPTIONS SHEET----------'
+'---------- CREATE EXCEPTIONS SHEET ----------'
 
 'Create new sheet for exceptions transactions (TAG)
 wb.Sheets.Add(After:=Sheets("Tracking_Info")).Name = "Exceptions"
@@ -307,7 +310,7 @@ wb.Sheets.Add(After:=Sheets("Tracking_Info")).Name = "Exceptions"
 'Set object
 Set ws_exceptions = wb.Worksheets("Exceptions")
 
-'----------FILL EXCEPTIONS SHEET----------'
+'---------- FILL EXCEPTIONS SHEET ----------'
     
 'Exceptions Index
 With ws_exceptions
@@ -317,13 +320,11 @@ With ws_exceptions
     .Range("D1").Value = "Client"
 End With
 
-'----------FILTER & COPY TAG TRANSACTIONS----------'
+'---------- FILTER & COPY TAG TRANSACTIONS ----------'
 
 'Filter and copy TAG transactions
 With ws
 
-    .AutoFilterMode = False
-    
     'Filter
     With .Range("A1:AU" & last_row)
             .AutoFilter Field:=1, Criteria1:="TAG"
@@ -342,14 +343,14 @@ On Error Resume Next
     ws.ShowAllData
 On Error GoTo 0
 
-'----------FIND WS EXCEPTIONS LIMITS----------'
+'---------- FIND WS EXCEPTIONS LIMITS ----------'
 
 'Get the last row value for the exceptions sheet
 With ws_exceptions
     exceptions_last_row = .Cells(.Rows.Count, "A").End(xlUp).Row
 End With
 
-'----------FILL EXCEPTIONS SHEET----------'
+'---------- FILL EXCEPTIONS SHEET ----------'
 
 'Fill in exceptions data
 With ws_exceptions
@@ -358,7 +359,7 @@ With ws_exceptions
     .Range("D2:D" & exceptions_last_row).Value = "CVI"
 End With
 
-'----------CREATE EXCEPTIONS WORKBOOK----------'
+'---------- CREATE EXCEPTIONS WORKBOOK ----------'
 
 'Copies exceptions to a new blank workbook
 
@@ -379,16 +380,18 @@ End With
 'Switch back ON the alert button
 Application.DisplayAlerts = True
 
-'----------VIEW MAIN DATA SHEET----------'
+'---------- VIEW MAIN DATA SHEET ----------'
 
 ws.Activate
 
-'Add filter
+'---------- TURN ON FILTER ----------'
+
+'Check for filter, turn on if none exists
 If ws.AutoFilterMode = False Then
     Range("A1").AutoFilter
 End If
 
-'----------SAVE DIRECTORY CHECK----------'
+'---------- SAVE DIRECTORY CHECK ----------'
 
 'This is path where report(s) are saved
 save_file_path = "C:\Users\" & Environ$("Username") & "\Desktop\RAC_Reports_Exports\"
@@ -398,7 +401,7 @@ If Len(Dir(save_file_path, vbDirectory)) = 0 Then
    MkDir (save_file_path)
 End If
 
-'----------SAVE EXCEPTIONS FILE----------'
+'---------- SAVE EXCEPTIONS FILE ----------'
 
 'Save exceptions file name
 exceptions_file_name = "CVI Exceptions " & Format(Now(), "MM-DD-YY") & ".xlsx"
@@ -406,12 +409,12 @@ exceptions_file_name = "CVI Exceptions " & Format(Now(), "MM-DD-YY") & ".xlsx"
 'Save exceptions file
 wb_exceptions.SaveAs Filename:=save_file_path & exceptions_file_name
 
-'----------SAVE MAIN WORKBOOK----------'
+'---------- SAVE MAIN WORKBOOK ----------'
 
 'Save Workbook with exceptions sheet now included
 wb.Save
 
-'----------SCRIPT COMPLETED----------'
+'---------- SCRIPT COMPLETED ----------'
 
 Application.ScreenUpdating = True
 
