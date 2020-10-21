@@ -14,7 +14,7 @@ Dim wb As Workbook
  
 End Function
 
-Sub ASCII_ART()
+Sub ASCII_Art()
 
 '__________    _____  _________   _____________   ____.___  _________                                                   _________ .__                   __           ________
 '\______   \  /  _  \ \_   ___ \  \_   ___ \   \ /   /|   | \_   ___ \  ____   ____   ________ __  _____   ___________  \_   ___ \|  |__   ____   ____ |  | __ ___  _\_____  \
@@ -28,12 +28,12 @@ End Sub
 Sub Prep_Report()
 
 'Author: Scott Henderson
-'Last Updated: Oct 15, 2020
+'Last Updated: Oct 20, 2020
 
 'Purpose: Identify existing wearers and track them, in case the number of existing wearers claiming for the new wearers bonus ever need to be quantified for the client.
 
 'Input: RAC CVI Consumer Check v2 Report from daily RAC email inbox
-'Output: Tagged and Non-Tagged transactions & CVI Exceptions report
+'Output: Prepped file of tagged and non-tagged transactions & CVI Exceptions of tagged transactions reports saved to the RAC_Reports_Exports folder on user Desktop
 
 Application.ScreenUpdating = False
 
@@ -54,7 +54,7 @@ Dim file_name         As String
 
 '---------- SELECT WORKBOOK ----------'
 
-'Search for wb name pattern
+'Selects workbook based on name pattern
 Set wb = GetWorkbookByNamePattern("**RAC CVI Consumer Check v2**")
 
 'Ends process if workbook not open
@@ -102,26 +102,28 @@ For Each patient_name_cell In ws.Range("AK2:AN" & last_row)
     patient_name_cell = WorksheetFunction.Trim(patient_name_cell)
 Next patient_name_cell
 
-'---------- PATIENT NAMES CHECK ----------'
-
-'Create Patient First Name Match column
-With ws
-    .Columns("AO:AO").Insert Shift:=xlToRight, CopyOrigin:=xlFormatFromLeftOrAbove
-    .Range("AO1").Value = "Patient First Name Match"
-End With
-
-'Formula to check Patient First Name Match
-With ws
-    .Range("AO2:AO" & last_row).Formula = "=$AK2=$AM2"
-End With
-
-'---------- RAC ACTION CHECK ----------'
+'---------- CREATE RACTION COLUMN ----------'
 
 'Create Raction column
 With ws
     .Columns("A:A").Insert Shift:=xlToRight, CopyOrigin:=xlFormatFromLeftOrAbove
     .Range("A1").Value = "Raction"
 End With
+
+'---------- PATIENT NAMES CHECK ----------'
+
+'Create Patient First Name Match column
+With ws
+    .Columns("AP:AP").Insert Shift:=xlToRight, CopyOrigin:=xlFormatFromLeftOrAbove
+    .Range("AP1").Value = "Patient First Name Match"
+End With
+
+'Formula to check Patient First Name Match
+With ws
+    .Range("AP2:AP" & last_row).Formula = "=$AL2=$AN2"
+End With
+
+'---------- CREATE RACTION FORMULA ----------'
 
 'Formula for Raction -> lots of double escape quotes for string checks
 With ws
@@ -179,7 +181,7 @@ End With
 'Data validation drop down list for Raction reasons
 With ws
     With .Range("A2:A" & last_row)
-        .Validation.Add Type:=xlValidateList, AlertStyle:=xlValidAlertStop, Formula1:="TAG, PREV TAG, DIFF PATIENT, IS, BH TAG"
+            .Validation.Add Type:=xlValidateList, AlertStyle:=xlValidAlertStop, Formula1:="TAG, PREV TAG, DIFF PATIENT, IS, BH TAG"
     End With
 End With
 
@@ -205,7 +207,7 @@ End With
 With ws_tracking
     .Range("B2").Value = "0" 'Hits
     .Range("C2").Value = "0" 'Assessed
-    .Range("D2").Value = "0" 'Actioned
+    .Range("D2").Value = "0" 'Worked
     .Range("E2").Value = "0" 'Worked Value
 End With
 
@@ -213,7 +215,7 @@ End With
 With ws_tracking
     .Range("B3").Value = pre_last_row - 1                          'Hits
     .Range("C3").Value = "=COUNTA(Sheet1!F:F)-1"                   'Assessed
-    .Range("D3").Formula = "=COUNTIF(Sheet1!A:A,""TAG"")"          'Actioned
+    .Range("D3").Formula = "=COUNTIF(Sheet1!A:A,""TAG"")"          'Worked
     .Range("E3").Formula = "=SUMIF(Sheet1!A:A,""TAG"",Sheet1!H:H)" 'Worked Value
 End With
 
@@ -269,11 +271,10 @@ Dim exceptions_last_row  As Long
 
 Dim save_file_path       As String
 Dim exceptions_file_name As String
-Dim exceptions_file_path As String
 
 '---------- SELECT WORKBOOK ----------'
 
-'Search for wb name pattern
+'Selects workbook based on name pattern
 Set wb = GetWorkbookByNamePattern("**RAC CVI Consumer Check v2**")
 
 'Ends process if workbook not open
