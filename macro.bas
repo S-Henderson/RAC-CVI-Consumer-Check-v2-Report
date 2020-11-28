@@ -25,7 +25,7 @@ Sub ASCII_Art()
 
 End Sub
 
-Sub Prep_Report()
+Sub RAC_CVI_Consumer_Check_v2_Report_Macro_Prep_Report()
 
 'Author: Scott Henderson
 'Last Updated: Oct 20, 2020
@@ -256,7 +256,7 @@ MsgBox ("Prep Macro Completed Sucessfully")
 
 End Sub
 
-Sub Create_Exceptions()
+Sub RAC_CVI_Consumer_Check_v2_Report_Macro_Create_Exceptions()
 
 Application.ScreenUpdating = False
 
