@@ -243,7 +243,7 @@ End If
 '---------- SAVE MAIN WORKBOOK ----------'
 
 'Save file name
-file_name = "Copy of RAC CVI Consumer Check v2 " & Format(Now(), "MM-DD-YY") & ".xlsx"
+file_name = "Copy of RAC CVI Consumer Check v2 " & Format(Now(), "MM-DD-YYYY") & ".xlsx"
 
 'Save file
 wb.SaveAs Filename:=save_file_path & file_name
@@ -405,7 +405,7 @@ End If
 '---------- SAVE EXCEPTIONS FILE ----------'
 
 'Save exceptions file name
-exceptions_file_name = "CVI Exceptions " & Format(Now(), "MM-DD-YY") & ".xlsx"
+exceptions_file_name = "CVI Exceptions " & Format(Now(), "MM-DD-YYYY") & ".xlsx"
 
 'Save exceptions file
 wb_exceptions.SaveAs Filename:=save_file_path & exceptions_file_name
