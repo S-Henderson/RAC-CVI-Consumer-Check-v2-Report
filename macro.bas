@@ -1,3 +1,26 @@
+'------------------------------------------------------------
+' Name         : RAC CVI Consumer v2 Report Tool
+' Author       : Scott Henderson
+' Created      : 10/14/2020
+' Last Updated : 10/20/2020
+' Purpose      : Identify existing wearers and track them, in case the number of existing wearers claiming for the new wearers bonus ever need to be quantified for the client
+' Input        : RAC CVI Consumer Check v2 Report from daily RAC email inbox
+' Output       : Completed file of tagged and non-tagged transactions & CVI Exceptions of tagged transactions reports saved to the RAC_Reports_Exports folder on user Desktop
+' Workflow     : 2 separate macro's. 1st to prep the report with Raction and patient name match checks.
+'                2nd to create an exceptions file based on tagged transactions after a manual patient name check
+'------------------------------------------------------------
+
+Sub ASCII_Art()
+
+'__________    _____  _________   _____________   ____.___  _________                                                   _________ .__                   __           ________
+'\______   \  /  _  \ \_   ___ \  \_   ___ \   \ /   /|   | \_   ___ \  ____   ____   ________ __  _____   ___________  \_   ___ \|  |__   ____   ____ |  | __ ___  _\_____  \
+' |       _/ /  /_\  \/    \  \/  /    \  \/\   Y   / |   | /    \  \/ /  _ \ /    \ /  ___/  |  \/     \_/ __ \_  __ \ /    \  \/|  |  \_/ __ \_/ ___\|  |/ / \  \/ //  ____/
+' |    |   \/    |    \     \____ \     \____\     /  |   | \     \___(  <_> )   |  \\___ \|  |  /  Y Y  \  ___/|  | \/ \     \___|   Y  \  ___/\  \___|    <   \   //       \
+' |____|_  /\____|__  /\______  /  \______  / \___/   |___|  \______  /\____/|___|  /____  >____/|__|_|  /\___  >__|     \______  /___|  /\___  >\___  >__|_ \   \_/ \_______ \
+'        \/         \/        \/          \/                        \/            \/     \/            \/     \/                \/     \/     \/     \/     \/               \/
+
+End Sub
+
 Option Explicit
 
 Public Function GetWorkbookByNamePattern(Pattern As String) As Workbook
@@ -14,26 +37,7 @@ Dim wb As Workbook
  
 End Function
 
-Sub ASCII_Art()
-
-'__________    _____  _________   _____________   ____.___  _________                                                   _________ .__                   __           ________
-'\______   \  /  _  \ \_   ___ \  \_   ___ \   \ /   /|   | \_   ___ \  ____   ____   ________ __  _____   ___________  \_   ___ \|  |__   ____   ____ |  | __ ___  _\_____  \
-' |       _/ /  /_\  \/    \  \/  /    \  \/\   Y   / |   | /    \  \/ /  _ \ /    \ /  ___/  |  \/     \_/ __ \_  __ \ /    \  \/|  |  \_/ __ \_/ ___\|  |/ / \  \/ //  ____/
-' |    |   \/    |    \     \____ \     \____\     /  |   | \     \___(  <_> )   |  \\___ \|  |  /  Y Y  \  ___/|  | \/ \     \___|   Y  \  ___/\  \___|    <   \   //       \
-' |____|_  /\____|__  /\______  /  \______  / \___/   |___|  \______  /\____/|___|  /____  >____/|__|_|  /\___  >__|     \______  /___|  /\___  >\___  >__|_ \   \_/ \_______ \
-'        \/         \/        \/          \/                        \/            \/     \/            \/     \/                \/     \/     \/     \/     \/               \/
-
-End Sub
-
-Sub RAC_CVI_Consumer_Check_v2_Report_Macro_Prep_Report()
-
-'Author: Scott Henderson
-'Last Updated: Oct 20, 2020
-
-'Purpose: Identify existing wearers and track them, in case the number of existing wearers claiming for the new wearers bonus ever need to be quantified for the client.
-
-'Input: RAC CVI Consumer Check v2 Report from daily RAC email inbox
-'Output: Prepped file of tagged and non-tagged transactions & CVI Exceptions of tagged transactions reports saved to the RAC_Reports_Exports folder on user Desktop
+Sub Prep_Report()
 
 Application.ScreenUpdating = False
 
@@ -110,7 +114,21 @@ With ws
     .Range("A1").Value = "Raction"
 End With
 
-'---------- PATIENT NAMES CHECK ----------'
+'Formula for Raction -> lots of double escape quotes for string checks
+With ws
+    .Range("A2:A" & last_row).Formula = "=IFS($AB2=""True"",""BH TAG"",$AJ2=""Invalid Submission"",""IS"",$AU2<>"""",""PREV TAG"",$AP2=TRUE,""TAG"",$AP2=FALSE,""DIFF PATIENT"")"
+End With
+
+'---------- DATA VALIDATION LIST OPTIONS ----------'
+
+'Data validation drop down list for Raction reasons
+With ws
+    With .Range("A2:A" & last_row)
+            .Validation.Add Type:=xlValidateList, AlertStyle:=xlValidAlertStop, Formula1:="TAG, PREV TAG, DIFF PATIENT, IS, BH TAG"
+    End With
+End With
+
+'---------- PATIENT NAMES CHECK COLUMN ----------'
 
 'Create Patient First Name Match column
 With ws
@@ -123,15 +141,9 @@ With ws
     .Range("AP2:AP" & last_row).Formula = "=$AL2=$AN2"
 End With
 
-'---------- CREATE RACTION FORMULA ----------'
-
-'Formula for Raction -> lots of double escape quotes for string checks
-With ws
-    .Range("A2:A" & last_row).Formula = "=IFS($AB2=""True"",""BH TAG"",$AJ2=""Invalid Submission"",""IS"",$AU2<>"""",""PREV TAG"",$AP2=TRUE,""TAG"",$AP2=FALSE,""DIFF PATIENT"")"
-End With
-
 '---------- CONDITIONAL FORMATTING RULES ----------'
 
+'Visually compare different Raction reasons
 With ws
 
     'TAG -> red highlight rows
@@ -176,24 +188,15 @@ With ws
     
 End With
 
-'---------- DATA VALIDATION LIST OPTIONS ----------'
-
-'Data validation drop down list for Raction reasons
-With ws
-    With .Range("A2:A" & last_row)
-            .Validation.Add Type:=xlValidateList, AlertStyle:=xlValidAlertStop, Formula1:="TAG, PREV TAG, DIFF PATIENT, IS, BH TAG"
-    End With
-End With
-
-'---------- TRACKING INFO ----------'
+'---------- TRACKING INFO WORKSHEET ----------'
 
 'Create new sheet for recording tracking info
 wb.Sheets.Add(After:=Sheets("Sheet1")).Name = "Tracking_Info"
 
-'Set object
+'Set worksheet object
 Set ws_tracking = wb.Worksheets("Tracking_Info")
 
-'Tracking Index
+'Tracking headers
 With ws_tracking
     .Range("A2").Value = "Channel"
     .Range("A3").Value = "Consumer"
@@ -203,7 +206,7 @@ With ws_tracking
     .Range("E1").Value = "Worked Value ($)"
 End With
 
-'Tracking Values -> Channel
+'Tracking Values -> Channel (Channel claims not applicable for this report/client so just 0)
 With ws_tracking
     .Range("B2").Value = "0" 'Hits
     .Range("C2").Value = "0" 'Assessed
@@ -212,6 +215,7 @@ With ws_tracking
 End With
 
 'Tracking Values -> Consumer
+'-1 values account for column headers
 With ws_tracking
     .Range("B3").Value = pre_last_row - 1                          'Hits
     .Range("C3").Value = "=COUNTA(Sheet1!F:F)-1"                   'Assessed
@@ -256,9 +260,11 @@ MsgBox ("Prep Macro Completed Sucessfully")
 
 End Sub
 
-Sub RAC_CVI_Consumer_Check_v2_Report_Macro_Create_Exceptions()
+Sub Create_Exceptions()
 
 Application.ScreenUpdating = False
+
+'---------- DECLARE VARIABLES ----------'
 
 Dim wb                   As Workbook
 Dim wb_exceptions        As Workbook
@@ -308,12 +314,12 @@ End With
 'Create new sheet for exceptions transactions (TAG)
 wb.Sheets.Add(After:=Sheets("Tracking_Info")).Name = "Exceptions"
 
-'Set object
+'Set worksheet object
 Set ws_exceptions = wb.Worksheets("Exceptions")
 
-'---------- FILL EXCEPTIONS SHEET ----------'
+'---------- EXCEPTIONS SHEET SETUP ----------'
     
-'Exceptions Index
+'Exceptions headers
 With ws_exceptions
     .Range("A1").Value = "Transaction"
     .Range("B1").Value = "Exception"
@@ -326,7 +332,7 @@ End With
 'Filter and copy TAG transactions
 With ws
 
-    'Filter
+    'Filter on Raction (column 1)
     With .Range("A1:AU" & last_row)
             .AutoFilter Field:=1, Criteria1:="TAG"
         
