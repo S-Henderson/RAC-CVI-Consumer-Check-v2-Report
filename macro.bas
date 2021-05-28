@@ -2,7 +2,7 @@
 ' Name         : RAC CVI Consumer v2 Report Tool
 ' Author       : Scott Henderson
 ' Created      : 10/14/2020
-' Last Updated : 10/20/2020
+' Last Updated : 05/28/2021
 ' Purpose      : Identify existing wearers and track them, in case the number of existing wearers claiming for the new wearers bonus ever need to be quantified for the client
 ' Input        : RAC CVI Consumer Check v2 Report from daily RAC email inbox
 ' Output       : Completed file of tagged and non-tagged transactions & CVI Exceptions of tagged transactions reports saved to the RAC_Reports_Exports folder on user Desktop
@@ -87,9 +87,9 @@ With ws
     pre_last_row = .Cells(.Rows.Count, "A").End(xlUp).Row
 End With
 
-'Remove duplicates by Transaction Number (column 5)
+'Remove duplicates by Transaction (column 5) AND Previous Claim Number (column 29)
 With ws
-    .Range("A1:AS" & pre_last_row).RemoveDuplicates Columns:=5, Header:=xlYes
+    .Range("A1:AS" & pre_last_row).RemoveDuplicates Columns:=Array(5, 29), Header:=xlYes
 End With
 
 '---------- FIND WS LIMITS ----------'
@@ -101,7 +101,7 @@ End With
 
 '---------- TRIM PATIENT NAMES ----------'
 
-'Get rid of leading/trailing white space in names
+'Get rid of leading/trailing white space in patient names
 For Each patient_name_cell In ws.Range("AK2:AN" & last_row)
     patient_name_cell = WorksheetFunction.Trim(patient_name_cell)
 Next patient_name_cell
@@ -112,11 +112,6 @@ Next patient_name_cell
 With ws
     .Columns("A:A").Insert Shift:=xlToRight, CopyOrigin:=xlFormatFromLeftOrAbove
     .Range("A1").Value = "Raction"
-End With
-
-'Formula for Raction -> lots of double escape quotes for string checks
-With ws
-    .Range("A2:A" & last_row).Formula = "=IFS($AB2=""True"",""BH TAG"",$AJ2=""Invalid Submission"",""IS"",$AU2<>"""",""PREV TAG"",$AP2=TRUE,""TAG"",$AP2=FALSE,""DIFF PATIENT"")"
 End With
 
 '---------- DATA VALIDATION LIST OPTIONS ----------'
@@ -139,6 +134,15 @@ End With
 'Formula to check Patient First Name Match
 With ws
     .Range("AP2:AP" & last_row).Formula = "=$AL2=$AN2"
+End With
+
+'---------- CREATE RACTION FORMULA ----------'
+
+'put formula rules at end so ending formula not weird/offset since adding columns at start of data
+
+'Formula for Raction -> lots of double escape quotes for string checks
+With ws
+    .Range("A2:A" & last_row).Formula = "=IFS($AB2=""True"",""BH TAG"",$AJ2=""Invalid Submission"",""IS"",$AU2<>"""",""PREV TAG"",$AP2=TRUE,""TAG"",$AP2=FALSE,""DIFF PATIENT"")"
 End With
 
 '---------- CONDITIONAL FORMATTING RULES ----------'
@@ -322,9 +326,7 @@ Set ws_exceptions = wb.Worksheets("Exceptions")
 'Exceptions headers
 With ws_exceptions
     .Range("A1").Value = "Transaction"
-    .Range("B1").Value = "Exception"
-    .Range("C1").Value = "Exception Reason"
-    .Range("D1").Value = "Client"
+    .Range("B1").Value = "Exception Reason"
 End With
 
 '---------- FILTER & COPY TAG TRANSACTIONS ----------'
@@ -361,9 +363,7 @@ End With
 
 'Fill in exceptions data
 With ws_exceptions
-    .Range("B2:B" & exceptions_last_row).Value = "TRUE"
-    .Range("C2:C" & exceptions_last_row).Value = "existing wearer"
-    .Range("D2:D" & exceptions_last_row).Value = "CVI"
+    .Range("B2:B" & exceptions_last_row).Value = "Existing Wearer"
 End With
 
 '---------- CREATE EXCEPTIONS WORKBOOK ----------'
